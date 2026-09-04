@@ -53,6 +53,10 @@ Remove local service data when you need a clean environment:
 docker compose down -v
 ```
 
+## Milestone Notes
+
+- [M1 Local Development Environment Recap](docs/m1-local-development-environment.md)
+
 ## Service Endpoints
 
 | Service | Local Endpoint |

@@ -14,3 +14,6 @@ checkpoints/
 .DS_Store
 .idea/
 .vscode/
+
+# milestone - 한국어로 작성되어 있음.
+Data_Lake_Project_Milestones.md
