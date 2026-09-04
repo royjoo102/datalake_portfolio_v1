@@ -1,0 +1,16 @@
+# Local environment files
+.env
+
+# Local source data
+GCE_EVO_Data/
+
+# Runtime data and generated outputs
+data/
+logs/
+checkpoints/
+*.parquet
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
