@@ -17,3 +17,8 @@ checkpoints/
 
 # milestone - 한국어로 작성되어 있음.
 Data_Lake_Project_Milestones.md
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+datalake_env/

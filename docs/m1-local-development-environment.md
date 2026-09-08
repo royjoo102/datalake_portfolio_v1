@@ -1,5 +1,7 @@
 # M1 Local Development Environment Recap
 
+This document records the M1 completion state. CSV replay was subsequently implemented in M2. See [M2 recap and M3 handoff](m2-recap-and-m3-handoff.md) for current status and the Kafka storage-path finding; use `docker compose stop` / `start` until persistence is corrected before container recreation.
+
 ## Objective
 
 M1 establishes a repeatable local runtime for the data lake project. The goal is to run the core infrastructure locally before building producer, streaming, validation, and storage logic in later milestones.
@@ -102,6 +104,18 @@ Default local credentials:
 Username: minioadmin
 Password: minioadmin
 ```
+
+## Configuration Register
+
+This register tracks local configuration values that may affect pipeline operation, security posture, and verification scope.
+
+| Configuration | Current Value | Purpose | Impact if Changed | Security | Verification |
+| --- | --- | --- | --- | --- | --- |
+| Kafka host endpoint | `localhost:9092` | Connects local producers and host-based tools to Kafka | Local replay services may fail to connect | Not public | Produce/consume smoke test |
+| Kafka internal endpoint | `kafka:29092` | Connects services inside the Docker Compose network | Spark or containerized services may fail to connect | Internal only | Container connectivity check |
+| Spark master | `spark://spark-master:7077` | Submits Spark jobs to the local Spark cluster | Spark jobs may not run | Internal only | Worker registration and Spark connectivity |
+| MinIO API | `localhost:9000` | Provides local S3-compatible object storage access | Data lake reads and writes may fail | Requires credentials | Write/read/delete validation |
+| Raw topic | `raw-events` | Receives raw source events | Both producers and Spark consumers are affected | General configuration | Topic configuration check |
 
 ## Smoke Test Flow
 
