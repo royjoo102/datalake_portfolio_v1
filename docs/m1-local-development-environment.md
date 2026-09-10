@@ -1,6 +1,6 @@
 # M1 Local Development Environment Recap
 
-This document records the M1 completion state. CSV replay was subsequently implemented in M2. See [M2 recap and M3 handoff](m2-recap-and-m3-handoff.md) for current status and the Kafka storage-path finding; use `docker compose stop` / `start` until persistence is corrected before container recreation.
+This document records the M1 completion state. CSV replay was subsequently implemented in M2. See [M2 recap and M3 handoff](m2-recap-and-m3-handoff.md) for the historical Kafka storage-path finding. It was corrected with verified data preservation in [M3](m3-streaming-pipeline.md).
 
 ## Objective
 

@@ -47,7 +47,7 @@ Stop the local services while retaining the containers:
 docker compose stop
 ```
 
-Resume existing containers with `docker compose start`. The current Kafka log directory differs from its mounted data volume; preserve/migrate it before recreating containers. See the [storage-path finding](docs/m2-recap-and-m3-handoff.md#발견-사항-kafka-저장-경로-불일치).
+Resume existing containers with `docker compose start`. Kafka now writes to its persistent `kafka-data` volume; the M2 path mismatch was corrected and existing events were verified after migration in M3.
 
 Remove local service data when you need a clean environment:
 
@@ -60,8 +60,9 @@ docker compose down -v
 - [M1 Local Development Environment Recap](docs/m1-local-development-environment.md)
 - [M2 Replay Service](docs/m2-replay-service.md)
 - [M2 Recap and M3 Handoff](docs/m2-recap-and-m3-handoff.md)
+- [M3 Streaming Pipeline](docs/m3-streaming-pipeline.md)
 
-M2 CSV replay acceptance is complete. The latest recorded read-back check verified 12,589 records with all 53 source fields preserved. Spark processing and MinIO event persistence are pending; Kafka persistence across container recreation has an open storage-path issue.
+M2 replay and M3 Spark validation are complete under the agreed scope. M3 produced 12,589 Silver records with the selected 24 fields and preserved 5 prior smoke-test messages in Rejected. Business deduplication is deferred. Results are staged locally; MinIO/Parquet publication is M4 work.
 
 ## Service Endpoints
 
@@ -112,3 +113,13 @@ python -m replay --run-id gce-june-001 --resume
 ```
 
 See [M2 Replay Service](docs/m2-replay-service.md) for the message contract, full-file replay, pause/resume, recovery guarantees and tests. No source fields or duplicate rows are filtered in M2.
+
+## Spark Processing (M3)
+
+```bash
+docker compose --profile m3 build spark-pipeline
+./scripts/run-streaming.sh
+python scripts/inspect-streaming.py --sample 3
+```
+
+The default command drains available Kafka events and exits; rerun to resume, or add `--continuous` for ongoing processing. The dedicated container uses Spark `local[2]`. Rules live in `config/filter-rules.yaml`; local outputs and Spark checkpoints live in `data/m3/` and `checkpoints/spark/`. See the M3 guide for null timestamps, raw preservation, restart guarantees and integration tests.

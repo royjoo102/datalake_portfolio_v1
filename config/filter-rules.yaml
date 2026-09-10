@@ -1,0 +1,86 @@
+version: 1
+supported_schema_versions: ["1.0"]
+required_metadata: [event_id, replay_run_id, source_file, source_sha256, source_row, replay_time, schema_version]
+required_payload: []
+timestamp_field: event_timestamp
+timestamp_unit: milliseconds
+invalid_timestamp: preserve_null
+input_fields:
+  - application_app_id
+  - application_cognito_identity_pool_id
+  - application_package_name
+  - application_sdk_name
+  - application_sdk_version
+  - application_title
+  - application_version_code
+  - application_version_name
+  - arrival_timestamp
+  - attributes_gbm
+  - attributes_carrier
+  - attributes_channel
+  - attributes_channel_id
+  - attributes_channel_name
+  - attributes_current_screen
+  - attributes_device_id
+  - attributes_device_model
+  - attributes_device_type
+  - attributes_event_type
+  - attributes_extra
+  - attributes_face_name
+  - attributes_headphone_conn
+  - attributes_region
+  - attributes_region_id
+  - attributes_sess_seq_num
+  - attributes_store_id
+  - attributes_subchannel
+  - attributes_subchannel_id
+  - attributes_subsidiary
+  - attributes_subsidiary_id
+  - attributes_test_mode
+  - attributes_to_screen
+  - client_client_id
+  - client_cognito_id
+  - device_locale_code
+  - device_locale_country
+  - device_locale_language
+  - device_make
+  - device_model
+  - device_platform_name
+  - device_platform_version
+  - event_timestamp
+  - event_type
+  - event_version
+  - metrics_duration
+  - session_session_id
+  - session_start_timestamp
+  - session_stop_timestamp
+  - attributes_shopper_id
+  - app_id
+  - eventreceivedyear
+  - eventreceivedmonth
+  - eventreceivedday
+allowlist:
+  - application_package_name
+  - application_title
+  - application_version_name
+  - arrival_timestamp
+  - attributes_channel
+  - attributes_current_screen
+  - attributes_device_id
+  - attributes_event_type
+  - attributes_extra
+  - attributes_store_id
+  - attributes_to_screen
+  - device_model
+  - device_platform_name
+  - device_platform_version
+  - event_timestamp
+  - event_type
+  - event_version
+  - metrics_duration
+  - session_session_id
+  - session_start_timestamp
+  - session_stop_timestamp
+  - eventreceivedyear
+  - eventreceivedmonth
+  - eventreceivedday

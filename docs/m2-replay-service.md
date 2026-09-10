@@ -98,7 +98,7 @@ The June CSV contains 864,935 records and 53 columns (630,081,197 bytes). A full
 - Resumed session: 99.9 events/sec against a configured 100 events/sec.
 - Read back all 10,000 messages: every original payload field, source row, ID and source metadata matched; no missing or extra records.
 - Consumer verification uses an explicit beginning offset; a deferred seek followed by `position()` stalled with the installed client during validation.
-- At initial acceptance, the run was paused at row 10,000. A later recap verified 12,589 records; the full 864,935-record file has not been replayed. See the [recap and M3 handoff](m2-recap-and-m3-handoff.md) for the latest recorded status and the open Kafka storage-path issue. To continue the run from its saved checkpoint:
+- At initial acceptance, the run was paused at row 10,000. A later recap verified 12,589 records; the full 864,935-record file has not been replayed. See the [recap and M3 handoff](m2-recap-and-m3-handoff.md) for the latest recorded status and the historical Kafka storage-path issue (resolved in M3). To continue the run from its saved checkpoint:
 
 ```bash
 python -m replay --run-id m2-validation-20260908 --resume
@@ -108,4 +108,4 @@ M2's 10,000-record acceptance check is complete. Full-file load testing and cros
 
 ## Recap and open follow-ups
 
-See [M2 recap and M3 handoff](m2-recap-and-m3-handoff.md) for conversation decisions, current verification counts, M3 questions and the Kafka log-directory/volume mismatch. M2 replay acceptance is complete; persistence across container recreation still needs correction and validation.
+See [M2 recap and M3 handoff](m2-recap-and-m3-handoff.md) for conversation decisions, current verification counts, M3 questions and the Kafka log-directory/volume mismatch. M2 replay acceptance is complete. The persistence issue was subsequently corrected and verified in [M3](m3-streaming-pipeline.md).
