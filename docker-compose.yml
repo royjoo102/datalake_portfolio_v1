@@ -124,6 +124,33 @@ services:
       - spark-ivy:/root/.ivy2
     entrypoint: ["/opt/spark/bin/spark-submit"]
 
+  spark-lake:
+    profiles: [m4]
+    build:
+      context: .
+      dockerfile: docker/spark-lake.Dockerfile
+    image: data-lake-spark-lake:3.5.8
+    user: "0:0"
+    working_dir: /workspace
+    environment:
+      KAFKA_INTERNAL_BOOTSTRAP_SERVERS: "${KAFKA_INTERNAL_BOOTSTRAP_SERVERS:-kafka:29092}"
+      KAFKA_RAW_TOPIC: "${KAFKA_RAW_TOPIC:-raw-events}"
+      MINIO_ENDPOINT: "${MINIO_INTERNAL_ENDPOINT:-http://minio:9000}"
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+      MINIO_BUCKET: "${MINIO_BUCKET:-data-lake}"
+      AWS_REGION: "${AWS_REGION:-us-west-2}"
+      PYTHONPATH: /workspace
+      TZ: UTC
+    volumes:
+      - ./lake:/workspace/lake:ro
+      - ./streaming:/workspace/streaming:ro
+      - ./config:/workspace/config:ro
+      - ./checkpoints/lake:/workspace/checkpoints/lake
+      - ./logs/m4:/workspace/logs/m4
+      - spark-ivy:/root/.ivy2
+    entrypoint: ["/opt/spark/bin/spark-submit"]
+
 volumes:
   kafka-data:
   minio-data:

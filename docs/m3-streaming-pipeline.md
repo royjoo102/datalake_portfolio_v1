@@ -158,6 +158,8 @@ Kafka now uses the named volume across normal container recreation. `docker comp
 
 ## M4 Handoff
 
+M4 is now implemented in [M4 MinIO Parquet Lake](m4-minio-lake.md). The SQLite results described here are retained as the migration source and archive; new processing uses `scripts/run-lake.sh` and writes directly to MinIO. The following items record the original handoff.
+
 - Carry the selected 24 Silver columns and timestamp null policy into the Parquet schema.
 - Define a separate date partition path for events with `event_time=null`.
 - Implement storage layouts for original messages, Silver, Rejected, and Gold aggregates in MinIO.

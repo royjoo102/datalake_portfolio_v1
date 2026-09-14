@@ -61,8 +61,9 @@ docker compose down -v
 - [M2 Replay Service](docs/m2-replay-service.md)
 - [M2 Recap and M3 Handoff](docs/m2-recap-and-m3-handoff.md)
 - [M3 Streaming Pipeline](docs/m3-streaming-pipeline.md)
+- [M4 MinIO Parquet Lake](docs/m4-minio-lake.md)
 
-M2 replay and M3 Spark validation are complete under the agreed scope. M3 produced 12,589 Silver records with the selected 24 fields and preserved 5 prior smoke-test messages in Rejected. Business deduplication is deferred. Results are staged locally; MinIO/Parquet publication is M4 work.
+M4 is the active processing path: Kafka → Spark → MinIO Parquet. The existing M3 snapshot (12,594 Raw, 12,589 Silver, 5 Rejected) has been migrated. Silver keeps the selected 24 business fields, date partitions use America/Los_Angeles, and daily Gold snapshots include late arrivals. Business deduplication remains deferred. SQLite is retained as the M3 archive.
 
 ## Service Endpoints
 
@@ -114,7 +115,9 @@ python -m replay --run-id gce-june-001 --resume
 
 See [M2 Replay Service](docs/m2-replay-service.md) for the message contract, full-file replay, pause/resume, recovery guarantees and tests. No source fields or duplicate rows are filtered in M2.
 
-## Spark Processing (M3)
+## Spark Processing (M3, archived path)
+
+Use M4 below for new processing. These M3 commands remain available to reproduce the earlier milestone; running them continues writing the old SQLite sink.
 
 ```bash
 docker compose --profile m3 build spark-pipeline
@@ -123,3 +126,21 @@ python scripts/inspect-streaming.py --sample 3
 ```
 
 The default command drains available Kafka events and exits; rerun to resume, or add `--continuous` for ongoing processing. The dedicated container uses Spark `local[2]`. Rules live in `config/filter-rules.yaml`; local outputs and Spark checkpoints live in `data/m3/` and `checkpoints/spark/`. See the M3 guide for null timestamps, raw preservation, restart guarantees and integration tests.
+
+
+## MinIO Lake (M4, active path)
+
+```bash
+source datalake_env/bin/activate
+python -m pip install -r requirements.txt -r requirements-lake.txt
+docker compose --profile m4 build spark-lake
+# One-time import; safely repeatable for an unchanged M3 snapshot:
+python -m lake.migrate
+./scripts/run-lake.sh
+python -m lake.query --sql 'SELECT * FROM gold_event_volume ORDER BY event_date, replay_run_id'
+python scripts/verify-lake.py
+```
+
+The job drains the Kafka range available when it starts, refreshes Gold, and exits. Rerun it after producing more events; there is no background M4 consumer. It writes directly to MinIO through a bounded Spark driver batch. Query commands read committed MinIO Parquet with DuckDB and Arrow. Preserve `checkpoints/lake/` with the MinIO volume. See the [M4 guide](docs/m4-minio-lake.md) for storage paths, Raw-event queries, null dates, cutover boundaries, failure recovery, and test evidence.
+
+For a browser SQL editor with the MinIO views already connected, run `python -m lake.ui` and use the new UI at `http://localhost:4214`. See the [interactive SQL instructions](docs/m4-minio-lake.md#interactive-sql-in-the-duckdb-ui).
