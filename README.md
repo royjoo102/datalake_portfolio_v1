@@ -62,6 +62,7 @@ docker compose down -v
 - [M2 Recap and M3 Handoff](docs/m2-recap-and-m3-handoff.md)
 - [M3 Streaming Pipeline](docs/m3-streaming-pipeline.md)
 - [M4 MinIO Parquet Lake](docs/m4-minio-lake.md)
+- [M5 Dashboard](docs/m5-dashboard.md)
 
 M4 is the active processing path: Kafka → Spark → MinIO Parquet. The existing M3 snapshot (12,594 Raw, 12,589 Silver, 5 Rejected) has been migrated. Silver keeps the selected 24 business fields, date partitions use America/Los_Angeles, and daily Gold snapshots include late arrivals. Business deduplication remains deferred. SQLite is retained as the M3 archive.
 
@@ -144,3 +145,14 @@ python scripts/verify-lake.py
 The job drains the Kafka range available when it starts, refreshes Gold, and exits. Rerun it after producing more events; there is no background M4 consumer. It writes directly to MinIO through a bounded Spark driver batch. Query commands read committed MinIO Parquet with DuckDB and Arrow. Preserve `checkpoints/lake/` with the MinIO volume. See the [M4 guide](docs/m4-minio-lake.md) for storage paths, Raw-event queries, null dates, cutover boundaries, failure recovery, and test evidence.
 
 For a browser SQL editor with the MinIO views already connected, run `python -m lake.ui` and use the new UI at `http://localhost:4214`. See the [interactive SQL instructions](docs/m4-minio-lake.md#interactive-sql-in-the-duckdb-ui).
+
+
+## Dashboard (M5)
+
+```bash
+source datalake_env/bin/activate
+python -m pip install -r requirements-dashboard.txt
+./scripts/run-dashboard.sh
+```
+
+Open `http://127.0.0.1:8501` for the English dashboard. Use **Refresh data** to reload the published lake snapshot. Date/run filters, event exploration, pipeline observations, and storage measurements are read-only. Refreshing the dashboard does not run Spark. See the [M5 guide](docs/m5-dashboard.md) for metric definitions, source coverage, tests, and local-scale limits.

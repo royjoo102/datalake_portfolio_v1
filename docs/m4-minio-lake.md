@@ -63,6 +63,18 @@ SELECT * FROM gold_event_volume ORDER BY event_date;
 
 No event data is copied into a local DuckDB database. The setup uses a temporary S3 secret and a private temporary SQL file removed when the launcher exits. View file lists are fixed at launch; restart the launcher after processing more events to include the newly committed data and current Gold snapshot. `python -m lake.ui --check` verifies the views without opening a browser. Use `--port` to choose another UI port.
 
+### UI initialization errors and concurrent sessions
+
+The launcher now attaches a dedicated `_duckdb_ui` notebook catalog at `data/duckdb-ui/<lake-id>/<port>/notebooks.duckdb` before starting the UI. This avoids multiple DuckDB processes competing for the default `~/.duckdb/extension_data/ui/ui.db` file. Using a different port without isolating this catalog can produce `Initialization Error` with `Catalog "_duckdb_ui" does not exist`.
+
+Existing notebooks in the old default catalog are preserved. Each new lake/port combination has its own notebook history. These local catalogs hold UI state; the `silver` view still reads Parquet from MinIO, and event data is not copied into the notebook database. A port that is already occupied is rejected before loading the lake. Stop its existing terminal with `.quit`, or choose an unused port:
+
+```bash
+python -m lake.ui --port 4216
+```
+
+Open the matching address, `http://localhost:4216`. Restart the launcher after new data is processed to rebuild its fixed file lists. Reloading the browser alone does not refresh those views.
+
 ## Storage and completion
 
 ```text

@@ -11,7 +11,7 @@ from lake.writer import Lake
 from streaming.rules import load_rules
 
 
-def connection(lake, commits=None):
+def connection(lake, commits=None, gold_snapshot=...):
     commits = lake.commits() if commits is None else commits
     con = duckdb.connect()
     con.execute("SET TimeZone='UTC'")
@@ -20,7 +20,7 @@ def connection(lake, commits=None):
         paths = [f"{lake.objects.bucket}/{f['key']}" for c in commits for f in c['files'] if f['zone']==zone]
         data = ds.dataset(paths, filesystem=fs, format='parquet', schema=schema) if paths else pa.Table.from_pylist([], schema=schema)
         con.register(zone, data)
-    latest = lake.objects.json(f'{lake.control}/gold/latest.json')
+    latest = lake.objects.json(f'{lake.control}/gold/latest.json') if gold_snapshot is ... else gold_snapshot
     if latest is not None:
         for item in latest['files']:
             name = 'gold_' + item['metric'].replace('-', '_')

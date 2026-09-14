@@ -1,0 +1,5 @@
+-r requirements.txt
+-r requirements-lake.txt
+streamlit==1.49.1
+pandas==2.3.2
+altair==5.5.0

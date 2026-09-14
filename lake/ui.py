@@ -3,6 +3,7 @@ import argparse
 import os
 from pathlib import Path
 import shutil
+import socket
 import subprocess
 import tempfile
 from urllib.parse import urlparse
@@ -67,10 +68,24 @@ def main():
     cli = shutil.which('duckdb')
     if cli is None:
         parser.error('DuckDB CLI is required (duckdb must be on PATH)')
+    if not args.check:
+        try:
+            with socket.create_connection(('localhost', args.port), timeout=0.5):
+                pass
+        except OSError:
+            pass
+        else:
+            parser.error(f'Port {args.port} is already in use. Exit its DuckDB terminal with .quit, or select another --port.')
     lake = Lake(Objects(), args.lake_id, load_rules(args.rules))
     sql = setup_sql(lake)
     if not args.check:
-        sql += f"\nINSTALL ui; LOAD ui; SET ui_local_port={args.port};"
+        # DuckDB's default UI notebook database is shared across processes.
+        # A separate port alone does not prevent its file-lock collision.
+        ui_directory = Path(__file__).resolve().parents[1] / 'data/duckdb-ui' / lake.id / str(args.port)
+        ui_directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+        sql += (f"\nINSTALL ui; LOAD ui;"
+                f" ATTACH {literal(ui_directory / 'notebooks.duckdb')} AS _duckdb_ui;"
+                f" SET ui_local_port={args.port};")
     # Private ephemeral setup file; credentials never appear in command arguments.
     with tempfile.TemporaryDirectory(prefix='lake-ui-') as directory:
         path = Path(directory) / 'setup.sql'
